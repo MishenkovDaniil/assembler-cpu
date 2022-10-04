@@ -1,0 +1,8 @@
+push 50
+pUsh 23
+sub
+push 15
+push 12
+div
+out
+hlt
