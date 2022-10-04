@@ -9,9 +9,9 @@
 
 int main (int argc, const char *argv[])
 {
-    if (argc != 3)
+    if (argc != 5)
     {
-        printf ("Enter the name of input and output files to assembly and nothing more");
+        printf ("Enter the name of input and output files to assembly, version of cpu and nothing more");
 
         return 0;
     }
@@ -35,9 +35,9 @@ int main (int argc, const char *argv[])
     int *op_code = (int *)calloc (2 * nlines, sizeof (int));    //2!!!
     assert (op_code);
 
-    int number = fill_codes (text, op_code);
+    int number = init_code (text, op_code);
 
-    print_text (out_file, op_code, number);
+    print_text (out_file, op_code, number, argv[3], argv[4]);
 
     //fwrite (cmd, sizeof (int), index, out_file);
 

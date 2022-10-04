@@ -4,7 +4,7 @@
 #include "..\calc.h"
 #include "asm.h"
 
-int fill_codes (char *text, int *op_code)
+int init_code (char *text, int *op_code)
 {
     int number = 0;
     int index = 0;
@@ -59,6 +59,7 @@ int fill_codes (char *text, int *op_code)
         else if (stricmp (cmd, "hlt") == 0)
         {
             op_code[index++] = CMD_HLT;
+            break;
         }
         else
         {
@@ -72,8 +73,10 @@ int fill_codes (char *text, int *op_code)
 }
 
 
-void print_text (FILE *out_file, int *op_code, int num)
+void print_text (FILE *out_file, int *op_code, int num, const char *id, const char *version)
 {
+    fprintf (out_file, "%s %s %d", id, version, num);
+
     for (int  i = 0; i < num; i++)
     {
         fprintf (out_file, "%d ", op_code[i]);
