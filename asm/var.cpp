@@ -2,6 +2,8 @@
 
 int main ()
 {
+    printf ("1");
+
     const char *a[20] = {};
     a[0] = "push 84";
     a[1] = "pop ";
@@ -22,7 +24,7 @@ int main ()
 
     //text[number - 1] = ' ';
 
-    sscanf (text + number - 1, "%d %n", &val, &temp);
+    sscanf (text + number, "%d %n", &val, &temp);
 
     printf ("%d\n", temp);
     printf ("[%d]", val);
@@ -35,7 +37,7 @@ int main ()
 
     temp = 0;
 
-    sscanf (text + number - 1, "%s %n", arr, &temp);
+    sscanf (text + number, "%s %n", arr, &temp);
     number += temp;
 
     printf ("%d\n", temp);

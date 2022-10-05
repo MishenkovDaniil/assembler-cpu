@@ -3,6 +3,7 @@ pUsh 23
 sub
 push 15
 push 12
+sub
 div
 out
 hlt

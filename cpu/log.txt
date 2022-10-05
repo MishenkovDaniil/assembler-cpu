@@ -1,0 +1,241 @@
+void __debug_stack_init(Stack*, int, const char*, const char*, const char*, int, int*) at ..\..\Stack\stack\stack.h(300)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 0):
+data [00C04270]:
+	size = 0
+	capacity = 20
+	 [0] = 3735928559.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+	 [4] = 3735928559.000000
+	 [5] = 3735928559.000000
+	 [6] = 3735928559.000000
+	 [7] = 3735928559.000000
+	 [8] = 3735928559.000000
+	 [9] = 3735928559.000000
+	 [10] = 3735928559.000000
+	 [11] = 3735928559.000000
+	 [12] = 3735928559.000000
+	 [13] = 3735928559.000000
+	 [14] = 3735928559.000000
+	 [15] = 3735928559.000000
+	 [16] = 3735928559.000000
+	 [17] = 3735928559.000000
+	 [18] = 3735928559.000000
+	 [19] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 36):
+data [00C04270]:
+	size = 0
+	capacity = 20
+	 [0] = 3735928559.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+	 [4] = 3735928559.000000
+	 [5] = 3735928559.000000
+	 [6] = 3735928559.000000
+	 [7] = 3735928559.000000
+	 [8] = 3735928559.000000
+	 [9] = 3735928559.000000
+	 [10] = 3735928559.000000
+	 [11] = 3735928559.000000
+	 [12] = 3735928559.000000
+	 [13] = 3735928559.000000
+	 [14] = 3735928559.000000
+	 [15] = 3735928559.000000
+	 [16] = 3735928559.000000
+	 [17] = 3735928559.000000
+	 [18] = 3735928559.000000
+	 [19] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 36):
+data [00C04270]:
+	size = 1
+	capacity = 20
+	*[0] = 50.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+	 [4] = 3735928559.000000
+	 [5] = 3735928559.000000
+	 [6] = 3735928559.000000
+	 [7] = 3735928559.000000
+	 [8] = 3735928559.000000
+	 [9] = 3735928559.000000
+	 [10] = 3735928559.000000
+	 [11] = 3735928559.000000
+	 [12] = 3735928559.000000
+	 [13] = 3735928559.000000
+	 [14] = 3735928559.000000
+	 [15] = 3735928559.000000
+	 [16] = 3735928559.000000
+	 [17] = 3735928559.000000
+	 [18] = 3735928559.000000
+	 [19] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 43):
+data [00C04270]:
+	size = 2
+	capacity = 10
+	*[0] = 50.000000
+	*[1] = 23.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+	 [4] = 3735928559.000000
+	 [5] = 3735928559.000000
+	 [6] = 3735928559.000000
+	 [7] = 3735928559.000000
+	 [8] = 3735928559.000000
+	 [9] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 45):
+data [00C04270]:
+	size = 1
+	capacity = 5
+	*[0] = 50.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+	 [4] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 45):
+data [00C04270]:
+	size = 0
+	capacity = 2
+	 [0] = 3735928559.000000
+	 [1] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 36):
+data [00C04270]:
+	size = 1
+	capacity = 2
+	*[0] = 27.000000
+	 [1] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 36):
+data [00C04270]:
+	size = 2
+	capacity = 2
+	*[0] = 27.000000
+	*[1] = 15.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 43):
+data [00C04270]:
+	size = 3
+	capacity = 4
+	*[0] = 27.000000
+	*[1] = 15.000000
+	*[2] = 12.000000
+	 [3] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 45):
+data [00C04270]:
+	size = 2
+	capacity = 4
+	*[0] = 27.000000
+	*[1] = 15.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 45):
+data [00C04270]:
+	size = 1
+	capacity = 4
+	*[0] = 27.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 66):
+data [00C04270]:
+	size = 2
+	capacity = 4
+	*[0] = 27.000000
+	*[1] = 3.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 68):
+data [00C04270]:
+	size = 1
+	capacity = 4
+	*[0] = 27.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 68):
+data [00C04270]:
+	size = 0
+	capacity = 4
+	 [0] = 3735928559.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+elem_t __debug_stack_pop(Stack*, int, int*) at ..\..\Stack\stack\stack.h(257)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 75):
+data [00C04270]:
+	size = 1
+	capacity = 4
+	*[0] = 9.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+
+int __debug_stack_push(Stack*, elem_t, int, int*) at ..\..\Stack\stack\stack.h(214)
+stack [0064FE58](ok)
+stk at int calc(int*, int) in cpu.cpp(26)(called at 77):
+data [00C04270]:
+	size = 0
+	capacity = 4
+	 [0] = 3735928559.000000
+	 [1] = 3735928559.000000
+	 [2] = 3735928559.000000
+	 [3] = 3735928559.000000
+
+

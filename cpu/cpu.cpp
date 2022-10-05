@@ -1,106 +1,97 @@
 #include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>
 
 #define STACK_DEBUG
 
+#include "cpu.h"
 #include "..\..\Stack\stack\stack.h"
-#include "..\..\standart_functions\io\io.h"
+#include "..\calc.h"
 
-enum errors
+int calc (int *op_code, int number)
 {
-    CPU_INCORRECT_ID      = nullptr,
-    CPU_INCORRECT_VERSION = nullptr,
-    CPU_INCORRECT_NUM     = nullptr
-};
+    assert (op_code && number);
 
+    int index = 0;
+    int val   = 0;
 
-int main (int argc, const char *argv[])
-{
-    if (argc != 4)
+    int error = 0;
+
+    int *p = &error;
+
+    Stack stk = {};
+
+    int start_capacity = 2;
+
+    stack_init (&stk, start_capacity, p);
+
+    while (index < number)
     {
-        printf ("ERROR: enter input file and nothing more");
-    }
-
-    FILE *input_file = fopen (argv[1], "rb");
-    assert (input_file);
-
-    int code_size = get_file_size (argv[1]);
-
-    char *text = (char *)calloc (code_size + 2, sizeof (char));
-
-    int number = 0;
-
-    if (!(check_code_file (text, &number, argv[2], argv[3]));
-    {
-        return 0;
-    }
-
-    int op_code [number] = {};
-
-    fill_code (text, op_code);
-
-
-
-
-
-    return 0;
-}
-
-char *check_code_file (char *text, int *num, const char *id, const char *version)
-{
-    int  i    = 0;
-    int count = 0;
-
-    const char *file_id = nullptr;
-    const char *file_version = nullptr;
-
-    while (*(text + i) && count < 3)
-    {
-        if (isspace(*(text + i)))
+        switch (op_code[index])
         {
-            *(text + i) = '\0';
-
-            if (count == 0)
+            case CMD_PUSH:
             {
-                file_id = text;
-                if (stricmp (file_id, id) != 0)
-                {
-                    printf ("error id");//
+                index++;
 
-                    return CPU_INCORRECT_ID;
-                }
+                stack_push (&stk, op_code[index], p);
+
+                index++;
+                break;
             }
-            else if (count == 1)
+            case CMD_SUB:
             {
-                file_version = text;
+                val  = stack_pop (&stk, p);
 
-                if (stricmp (file_version, version) != 0)
-                {
-                    printf ("error version");//
+                stack_push (&stk, stack_pop (&stk, p) - val, p);
 
-                    return CPU_INCORRECT_VERSION;
-                }
+                index++;
+                break;
             }
-            else
+            case CMD_ADD:
             {
-                *num = atoi (text);
+                stack_push (&stk, stack_pop (&stk, p) + stack_pop (&stk, p), p);
 
-                if (*num < 3)
-                {
-                    printf ("incorrect input data"); //
-
-                    return CPU_INCORRECT_NUM;
-                }
+                index++;
+                break;
             }
+            case CMD_MULT:
+            {
+                stack_push (&stk, stack_pop (&stk, p) * stack_pop (&stk, p), p);
 
-            text += i;
+                index++;
+                break;
+            }
+            case CMD_DIV:
+            {
+                val = stack_pop (&stk, p);
 
-            count++;
+                stack_push (&stk, stack_pop (&stk, p) / val, p);
+
+                index++;
+                break;
+            }
+            case CMD_OUT:
+            {
+                val = stack_pop (&stk, p);
+
+                stack_push (&stk, val, p);
+
+                printf ("[%d]", val);
+
+                index++;
+                break;
+            }
+            case CMD_HLT:
+            {
+                stack_dtor (&stk);
+
+                index++;
+                return 0;
+            }
+            default:
+            {
+                fprintf (stderr, "ERROR: incorrect input info\n");
+                return 0;
+            }
         }
-
-        i++;
     }
-
-    return text;
 }

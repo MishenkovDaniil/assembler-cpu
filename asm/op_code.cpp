@@ -17,8 +17,7 @@ int init_code (char *text, int *op_code)
         sscanf (text + number, "%s %n", cmd, &temp);
 
         number += temp;
-        number--;
-
+        //number--;
         temp = 0;
 
         if (stricmp (cmd, "push") == 0)
@@ -32,7 +31,7 @@ int init_code (char *text, int *op_code)
             op_code[index++] = val;
 
             number += temp;
-            number--;
+            //number--;
 
             temp = 0;
         }
@@ -75,7 +74,7 @@ int init_code (char *text, int *op_code)
 
 void print_text (FILE *out_file, int *op_code, int num, const char *id, const char *version)
 {
-    fprintf (out_file, "%s %s %d", id, version, num);
+    fprintf (out_file, "%s %s %d ", id, version, num);
 
     for (int  i = 0; i < num; i++)
     {
