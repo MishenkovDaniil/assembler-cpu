@@ -12,5 +12,12 @@ enum op_codes
     CMD_HLT  = 7
 };
 
+struct Head
+{
+    char *file_id      = nullptr;
+    char *file_version = nullptr;
+    char *number       = nullptr;
+};
+
 #endif /* CALC_H */
 
