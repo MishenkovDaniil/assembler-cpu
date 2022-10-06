@@ -24,7 +24,7 @@ int main (int argc, const char *argv[])
 
     int txt_size = get_file_size (argv[1]);
 
-    char *text = (char *)calloc (txt_size + 2, 1);
+    char *text = (char *)calloc (txt_size + 2, sizeof (char));
     assert (text);
 
     int nlines = 0;
