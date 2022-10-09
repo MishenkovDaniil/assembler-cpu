@@ -4,44 +4,44 @@
 
 #include "..\..\standart_functions\io\io.h"
 #include "cpu.h"
+#include "../calc.h"
 
 int main (int argc, const char *argv[])
 {
-    if (argc != 4)
+    if (argc != 2)
     {
         printf ("ERROR: enter input file and nothing more");
     }
 
-    FILE *input_file = fopen (argv[1], "rb");
-    assert (input_file);
+    FILE *asm_file = fopen (argv[1], "rb");
+    assert (asm_file);
 
-    int code_size = get_file_size (argv[1]);
+    const int FILE_ID = 0x00005A4D;
+    const int VERSION = 1;
 
-    char *text = (char *)calloc (code_size + 2, sizeof (char));
-    assert (text);
+    struct Head head = {};
 
-    int nlines = 0;
-    int verbose = 0;    //debug
+    fread (&head, sizeof (head), 1, asm_file);
+    printf ("%d\n%d\n%d\n", head.file_id, head.file_version, head.number);
 
-    read_in_buf (input_file, text, &nlines, code_size, verbose);  //
-
-    int number = 0;
-
-    text = check_code_file (text, &number, argv[2], argv[3]);
-
-    if (text == nullptr)
+    if (check_asm_file (&head, FILE_ID, VERSION))
     {
         return 0;
     }
 
-    int *op_code = (int *)calloc (number, sizeof (int));
+    int *op_code = (int *)calloc (head.number, sizeof (int));
     assert (op_code);
 
-    fill_code (text, op_code, number);
+    fread (op_code, sizeof (int), head.number, asm_file);
+    int  i = 0;
+    while (i < head.number)
+    {
+        printf ("%d\t", op_code[i++]);
+    }
+    calc (op_code, head.number);
 
-    calc (op_code, number);
-
-    free (text);
+    free (op_code);
+    fclose (asm_file);
 
     return 0;
 }
