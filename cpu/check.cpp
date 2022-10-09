@@ -8,12 +8,12 @@
 #include "../calc.h"
 
 
-int check_asm_file (Head *head, const char *const file_id, const int version)
+int check_asm_file (Head *head, const int file_id, const int version)
 {
     assert (head);
     assert (file_id);
 
-    if (stricmp (head->file_id, file_id))
+    if (head->file_id != file_id)
     {
         fprintf (stderr, "ERROR: file_type is incorrect for this CPU");
 
