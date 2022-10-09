@@ -6,7 +6,6 @@
 #include "..\..\standart_functions\io\io.h"
 #include "asm.h"
 
-static const int VERSION = 1;
 
 int main (int argc, const char *argv[])
 {
@@ -17,8 +16,10 @@ int main (int argc, const char *argv[])
         return 0;
     }
 
+    const int FILE_ID = 0x00005A4D;
+    const int VERSION = 1;
     const int MAX_OP_LEN = 2;
-    const char *file_id = "MZ";
+
     int nlines = 0;
     int verbose = 1;    //debug
 
@@ -43,7 +44,7 @@ int main (int argc, const char *argv[])
     init_code (text, op_code, &label);
     int number = init_code (text, op_code, &label);
 
-    print_op_code (out_file, op_code, number, file_id, VERSION);
+    print_op_code (out_file, op_code, number, FILE_ID, VERSION);
 
     free (text);
     free (op_code);

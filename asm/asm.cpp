@@ -63,6 +63,10 @@ int init_code (char *text, int *op_code, Label *label)
             op_code[index++] = CMD_HLT;
             break;
         }
+        else if (stricmp (cmd, "dup") == 0)
+        {
+            op_code[index++] = CMD_DUP;
+        }
         else if (strchr (cmd, ':'))
         {
             char *pname = strchr (cmd, ':');
@@ -165,7 +169,7 @@ int init_code (char *text, int *op_code, Label *label)
         }
         else
         {
-            error: printf ("ERROR: incorrect input info");
+            error: printf ("ERROR: incorrect input info  [%s]", cmd);
 
             return 0;
         }
@@ -187,11 +191,11 @@ int is_label_name (Label *label, const char *jmp_name)
     return 0;
 }
 
-void print_op_code (FILE *out_file, int *op_code, int number, const char *const file_id, const int version)
+void print_op_code (FILE *out_file, int *op_code, int number, const int file_id, const int version)
 {
     struct Head head = {};
 
-    strcpy (head.file_id, file_id);
+    head.file_id = file_id;
     head.file_version = version;
     head.number = number;
 
