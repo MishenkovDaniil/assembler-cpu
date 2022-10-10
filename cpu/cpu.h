@@ -4,7 +4,7 @@
 #include "../calc.h"
 
 int check_asm_file (Head *head, const int file_id, const int version);
-int calc (int *op_code, int number);
+int calc (Calc *calc, const int number);
 
 enum code_errors
 {

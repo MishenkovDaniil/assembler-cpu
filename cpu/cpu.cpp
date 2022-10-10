@@ -7,11 +7,10 @@
 #include "..\..\Stack\stack\stack.h"
 #include "..\calc.h"
 
-int calc (int *op_code, int number)
+int calc (Calc *calc, const int number)
 {
-    assert (op_code && number);
+    assert (calc && number);
 
-    int index = 0;
     int val_1 = 0;
     int val_2 = 0;
 
@@ -21,41 +20,54 @@ int calc (int *op_code, int number)
 
     stack_init (&stk, start_capacity);
 
-    while (index < number)
+
+    while (calc->ip < number)
     {
-        switch (op_code[index])
+        int cmd = calc->op_code[calc->ip];
+
+        switch (cmd)
         {
-            case CMD_PUSH:
+            /*case CMD_PUSH | ARG_REGISTR:
             {
-                index++;
+                calc->ip++;
 
-                stack_push (&stk, op_code[index]);
+                stack_push (&stk, calc->regs[calc->op_code[calc->ip]]);
 
-                index++;
+                calc->ip++;
 
                 break;
             }
+            case CMD_PUSH | ARG_IMMED:
+            {
+                calc->ip++;
+
+                stack_push (&stk, calc->op_code[calc->ip]);
+
+                calc->ip++;
+
+                break;
+            }*/
             case CMD_SUB:
             {
                 val_1  = stack_pop (&stk);
 
                 stack_push (&stk, stack_pop (&stk) - val_1);
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_ADD:
             {
                 stack_push (&stk, stack_pop (&stk) + stack_pop (&stk));
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_MULT:
             {
                 stack_push (&stk, stack_pop (&stk) * stack_pop (&stk));
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_DIV:
@@ -64,7 +76,7 @@ int calc (int *op_code, int number)
 
                 stack_push (&stk, stack_pop (&stk) / val_1);
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_OUT:
@@ -73,14 +85,14 @@ int calc (int *op_code, int number)
 
                 printf ("\nresult is [%d]\n", val_1);
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_HLT:
             {
                 stack_dtor (&stk);
 
-                index++;
+                calc->ip++;
                 return 0;
             }
             case CMD_DUP:
@@ -90,12 +102,12 @@ int calc (int *op_code, int number)
                 stack_push (&stk, val_1);
                 stack_push (&stk, val_1);
 
-                index++;
+                calc->ip++;
                 break;
             }
             case CMD_JMP:
             {
-                index = op_code[index + 1];
+                calc->ip = calc->op_code[calc->ip + 1];
 
                 break;
             }
@@ -108,12 +120,12 @@ int calc (int *op_code, int number)
 
                 if (val_2 < val_1)
                 {
-                    index = op_code[index + 1];
-                    printf ("op_code = %d\n\n", index);
+                    calc->ip = calc->op_code[calc->ip + 1];
+                    printf ("op_code = %d\n\n", calc->ip);
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
@@ -127,11 +139,11 @@ int calc (int *op_code, int number)
 
                 if (val_2 <= val_1)
                 {
-                    index = op_code[++index];
+                    calc->ip = calc->op_code[calc->ip + 1];
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
@@ -145,11 +157,11 @@ int calc (int *op_code, int number)
                 {
                     stack_push (&stk, val_2);
 
-                    index = op_code[++index];
+                    calc->ip = calc->op_code[calc->ip + 1];
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
@@ -163,11 +175,11 @@ int calc (int *op_code, int number)
 
                 if (val_2 >= val_1)
                 {
-                    index = op_code[++index];
+                    calc->ip = calc->op_code[calc->ip + 1];
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
@@ -181,11 +193,11 @@ int calc (int *op_code, int number)
 
                 if (val_2 == val_1)
                 {
-                    index = op_code[++index];
+                    calc->ip = calc->op_code[calc->ip + 1];
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
@@ -199,19 +211,49 @@ int calc (int *op_code, int number)
 
                 if (val_2 != val_1)
                 {
-                    index = op_code[++index];
+                    calc->ip = calc->op_code[calc->ip + 1];
                 }
                 else
                 {
-                    index += 2;
+                    calc->ip += 2;
                 }
 
                 break;
             }
             default:
             {
-                fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", op_code[index], index);
-                return 0;
+                int err = 0;
+
+                if (cmd & ARG_IMMED)
+                {
+                    calc->ip++;
+
+                    stack_push (&stk, calc->op_code[calc->ip]);
+
+                    calc->ip++;
+
+                    err++;
+
+                    break;
+                }
+                if (cmd & ARG_REGISTR)
+                {
+                    calc->ip++;
+
+                    stack_push (&stk, calc->regs[calc->op_code[calc->ip]]);
+
+                    calc->ip++;
+
+                    err++;
+
+                    break;
+                }
+
+                if (!(err))
+                {
+                    fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", calc->op_code[calc->ip], calc->ip);
+                    return 0;
+                }
             }
         }
     }

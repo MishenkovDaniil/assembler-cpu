@@ -8,7 +8,7 @@
 int init_code (char *text, int *op_code, Label *label)
 {
     int number = 0;
-    int index = 0;
+    int ip = 0;
 
     while (*(text + number + 1) != '\0')
     {
@@ -18,65 +18,90 @@ int init_code (char *text, int *op_code, Label *label)
         int temp_label_index = 0;
 
         sscanf (text + number, "%s%n", cmd, &temp);
-
         number += temp;
-        //number--;
         temp = 0;
 
         if (stricmp (cmd, "push") == 0)
         {
-            op_code[index++] = CMD_PUSH;
+            if (isalpha (*(text + number + 1)))
+            {
+                char reg[4] = {};
 
-            int val = 0;
+                sscanf (text + number, "%s %n", reg, &temp);
+                printf ("%s", reg);
 
-            sscanf (text + number, "%d %n", &val, &temp);
+                op_code[ip++] |= CMD_PUSH | ARG_REGISTR;
 
-            op_code[index++] = val;
+                if (stricmp (reg, "RAX") == 0)
+                {
+                    op_code[ip++] = RAX_NUM;
+                }
+                else if (stricmp (reg, "RBX") == 0)
+                {
+                    op_code[ip++] = RBX_NUM;
+                }
+                else if (stricmp (reg, "RCX") == 0)
+                {
+                    op_code[ip++] = RCX_NUM;
+                }
+                else if (stricmp (reg, "RDX") == 0)
+                {
+                    op_code[ip++] = RDX_NUM;
+                }
+                else
+                {
+                    goto error;
+                }
+            }
+            else
+            {
+                int val = 0;
+
+                sscanf (text + number, "%d %n", &val, &temp);
+
+                op_code[ip++] = CMD_PUSH | ARG_IMMED;
+                op_code[ip++] = val;
+            }
 
             number += temp;
-            //number--;
 
             temp = 0;
         }
         else if (stricmp (cmd, "sub") == 0)
         {
-            op_code[index++] = CMD_SUB;
+            op_code[ip++] = CMD_SUB;
         }
         else if (stricmp (cmd, "add") == 0)
         {
-            op_code[index++] = CMD_ADD;
+            op_code[ip++] = CMD_ADD;
         }
         else if (stricmp (cmd, "mult") == 0)
         {
-            op_code[index++] = CMD_MULT;
+            op_code[ip++] = CMD_MULT;
         }
         else if (stricmp (cmd, "div") == 0)
         {
-            op_code[index++] = CMD_DIV;
+            op_code[ip++] = CMD_DIV;
         }
         else if (stricmp (cmd, "out") == 0)
         {
-            op_code[index++] = CMD_OUT;
+            op_code[ip++] = CMD_OUT;
         }
         else if (stricmp (cmd, "hlt") == 0)
         {
-            op_code[index++] = CMD_HLT;
+            op_code[ip++] = CMD_HLT;
             break;
         }
         else if (stricmp (cmd, "dup") == 0)
         {
-            op_code[index++] = CMD_DUP;
+            op_code[ip++] = CMD_DUP;
         }
         else if (strchr (cmd, ':'))
         {
             char *pname = strchr (cmd, ':');
             *pname = '\0';
 
-            printf (":_cmd_label = [%s]\n", cmd);
-
             temp_label_index = is_label_name (label, cmd);
-
-            printf (":_temp_label = [%d]\n", temp_label_index);
 
             if (!(temp_label_index))
             {
@@ -85,16 +110,12 @@ int init_code (char *text, int *op_code, Label *label)
 
                 label->name[label_index] = temp;
 
-                printf (":_label_name = [%s]\t:_label_index = [%d]\n", label->name[label_index], label_index);
+                label->value[label_index++] = ip;
 
-                label->value[label_index++] = index;
-
-                printf (":_value_label = [%d]\n", label->value[label_index - 1]);
-                printf (":_label_index = [%d]\n", label_index);
             }
             else if (label->value[--temp_label_index] == -1)
             {
-                label->value[temp_label_index] = index;
+                label->value[temp_label_index] = ip;
             }
             else
                 ;
@@ -104,35 +125,35 @@ int init_code (char *text, int *op_code, Label *label)
         {
             if (stricmp (cmd, "jmp") == 0)
             {
-                op_code[index++] = CMD_JMP;
+                op_code[ip++] = CMD_JMP;
             }
             else if (stricmp (cmd, "jb") == 0)
             {
-                op_code[index++] = CMD_JB;
+                op_code[ip++] = CMD_JB;
             }
             else if (stricmp (cmd, "jbe") == 0)
             {
-                op_code[index++] = CMD_JBE;
+                op_code[ip++] = CMD_JBE;
             }
             else if (stricmp (cmd, "ja") == 0)
             {
-                op_code[index++] = CMD_JA;
+                op_code[ip++] = CMD_JA;
             }
             else if (stricmp (cmd, "jae") == 0)
             {
-                op_code[index++] = CMD_JAE;
+                op_code[ip++] = CMD_JAE;
             }
             else if (stricmp (cmd, "je") == 0)
             {
-                op_code[index++] = CMD_JE;
+                op_code[ip++] = CMD_JE;
             }
             else if (stricmp (cmd, "jne") == 0)
             {
-                op_code[index++] = CMD_JNE;
+                op_code[ip++] = CMD_JNE;
             }
             else if (stricmp (cmd, "jt") == 0)
             {
-                op_code[index++] = CMD_JT;
+                op_code[ip++] = CMD_JT;
             }
             else
             {
@@ -147,14 +168,9 @@ int init_code (char *text, int *op_code, Label *label)
 
             temp_label_index = is_label_name (label, jmp_name);
 
-            fprintf (stderr, "jmp_label 0 = [%s]\n", label->name[0]);
-
-            printf ("jmp_name = [%s]\t jmp_temp_label_index  = %d\n", jmp_name, temp_label_index);
-            printf ("jmp_label_value = [%d]\njmp_end\n\n", label->value[temp_label_index-1]);
-
             if (temp_label_index > 0 && label->value[--temp_label_index] != -1)
             {
-                op_code[index++] = label->value[temp_label_index];
+                op_code[ip++] = label->value[temp_label_index];
             }
             else if (!(temp_label_index))
             {
@@ -164,7 +180,7 @@ int init_code (char *text, int *op_code, Label *label)
                 label->name[label_index] = temp;
                 label->value[label_index++] = -1;   //
 
-                op_code[index++] = -1;  //
+                op_code[ip++] = -1;  //
             }
         }
         else
@@ -175,7 +191,7 @@ int init_code (char *text, int *op_code, Label *label)
         }
     }
 
-    return index;
+    return ip;
 }
 
 int is_label_name (Label *label, const char *jmp_name)
