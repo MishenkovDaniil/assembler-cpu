@@ -23,14 +23,34 @@ int init_code (char *text, int *op_code, Label *label)
 
         if (stricmp (cmd, "push") == 0)
         {
-            if (isalpha (*(text + number + 1)))
-            {
-                char reg[4] = {};
+            int start_ip = ip;
 
-                sscanf (text + number, "%s %n", reg, &temp);
+            int val = 0;
+
+            sscanf (text + number, "%d%n", &val, &temp);
+
+            op_code[start_ip] = CMD_PUSH | ARG_IMMED;
+            ip++;
+            op_code[ip++] = val;
+
+            number += temp;
+
+            temp = 0;
+
+            if (isalpha (*(text + ++number)))
+            {
+                char reg[5] = {};
+
+                if (*(text + number) == '+')
+                {
+                    number++;
+                }
+
+                sscanf (text + number, "%s%n", reg, &temp);
+
                 printf ("%s", reg);
 
-                op_code[ip++] |= CMD_PUSH | ARG_REGISTR;
+                op_code[start_ip] |= CMD_PUSH | ARG_REGISTR;
 
                 if (stricmp (reg, "RAX") == 0)
                 {
@@ -52,15 +72,6 @@ int init_code (char *text, int *op_code, Label *label)
                 {
                     goto error;
                 }
-            }
-            else
-            {
-                int val = 0;
-
-                sscanf (text + number, "%d %n", &val, &temp);
-
-                op_code[ip++] = CMD_PUSH | ARG_IMMED;
-                op_code[ip++] = val;
             }
 
             number += temp;

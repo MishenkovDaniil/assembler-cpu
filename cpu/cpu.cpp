@@ -227,14 +227,14 @@ int calc (Calc *calc, const int number)
 
                 if (cmd & ARG_IMMED)
                 {
-                    arg = calc->op_code[++(calc->ip)];
+                    arg += calc->op_code[++(calc->ip)];
 
                     status++;
 
                 }
                 if (cmd & ARG_REGISTR)
                 {
-                    arg = calc->regs[calc->op_code[++(calc->ip)]];
+                    arg += calc->regs[calc->op_code[++(calc->ip)]];
 
                     status++;
                 }
