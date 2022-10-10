@@ -12,18 +12,14 @@ int calc (int *op_code, int number)
     assert (op_code && number);
 
     int index = 0;
-    int val_1   = 0;
-    int val_2   = 0;
-
-    int error = 0;
-
-    int *p = &error;
+    int val_1 = 0;
+    int val_2 = 0;
 
     Stack stk = {};
 
     int start_capacity = 2;
 
-    stack_init (&stk, start_capacity, p);
+    stack_init (&stk, start_capacity);
 
     while (index < number)
     {
@@ -33,7 +29,7 @@ int calc (int *op_code, int number)
             {
                 index++;
 
-                stack_push (&stk, op_code[index], p);
+                stack_push (&stk, op_code[index]);
 
                 index++;
 
@@ -41,41 +37,41 @@ int calc (int *op_code, int number)
             }
             case CMD_SUB:
             {
-                val_1  = stack_pop (&stk, p);
+                val_1  = stack_pop (&stk);
 
-                stack_push (&stk, stack_pop (&stk, p) - val_1, p);
+                stack_push (&stk, stack_pop (&stk) - val_1);
 
                 index++;
                 break;
             }
             case CMD_ADD:
             {
-                stack_push (&stk, stack_pop (&stk, p) + stack_pop (&stk, p), p);
+                stack_push (&stk, stack_pop (&stk) + stack_pop (&stk));
 
                 index++;
                 break;
             }
             case CMD_MULT:
             {
-                stack_push (&stk, stack_pop (&stk, p) * stack_pop (&stk, p), p);
+                stack_push (&stk, stack_pop (&stk) * stack_pop (&stk));
 
                 index++;
                 break;
             }
             case CMD_DIV:
             {
-                val_1 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
 
-                stack_push (&stk, stack_pop (&stk, p) / val_1, p);
+                stack_push (&stk, stack_pop (&stk) / val_1);
 
                 index++;
                 break;
             }
             case CMD_OUT:
             {
-                val_1 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
 
-                printf ("result is [%d]\n", val_1);
+                printf ("\nresult is [%d]\n", val_1);
 
                 index++;
                 break;
@@ -89,10 +85,10 @@ int calc (int *op_code, int number)
             }
             case CMD_DUP:
             {
-                val_1 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
 
-                stack_push (&stk, val_1, p);
-                stack_push (&stk, val_1, p);
+                stack_push (&stk, val_1);
+                stack_push (&stk, val_1);
 
                 index++;
                 break;
@@ -105,10 +101,10 @@ int calc (int *op_code, int number)
             }
             case CMD_JB:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
-                stack_push (&stk, val_2, p);
+                stack_push (&stk, val_2);
 
                 if (val_2 < val_1)
                 {
@@ -124,10 +120,10 @@ int calc (int *op_code, int number)
             }
             case CMD_JBE:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
-                stack_push (&stk, val_2, p);
+                stack_push (&stk, val_2);
 
                 if (val_2 <= val_1)
                 {
@@ -142,12 +138,12 @@ int calc (int *op_code, int number)
             }
             case CMD_JA:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
                 if (val_2 > val_1)
                 {
-                    stack_push (&stk, val_2, p);
+                    stack_push (&stk, val_2);
 
                     index = op_code[++index];
                 }
@@ -160,10 +156,10 @@ int calc (int *op_code, int number)
             }
             case CMD_JAE:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
-                stack_push (&stk, val_2, p);
+                stack_push (&stk, val_2);
 
                 if (val_2 >= val_1)
                 {
@@ -178,10 +174,10 @@ int calc (int *op_code, int number)
             }
             case CMD_JE:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
-                stack_push (&stk, val_2, p);
+                stack_push (&stk, val_2);
 
                 if (val_2 == val_1)
                 {
@@ -196,10 +192,10 @@ int calc (int *op_code, int number)
             }
             case CMD_JNE:
             {
-                val_1 = stack_pop (&stk, p);
-                val_2 = stack_pop (&stk, p);
+                val_1 = stack_pop (&stk);
+                val_2 = stack_pop (&stk);
 
-                stack_push (&stk, val_2, p);
+                stack_push (&stk, val_2);
 
                 if (val_2 != val_1)
                 {
