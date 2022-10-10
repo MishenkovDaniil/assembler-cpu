@@ -1,14 +1,16 @@
 #ifndef CPU_H
 #define CPU_H
 
-char *check_code_file (char *text, int *num, const char *id, const char *version);
-void fill_code (char *text, int *op_code, int number);
+#include "../calc.h"
+
+int check_asm_file (Head *head, const int file_id, const int version);
 int calc (int *op_code, int number);
 
-static char *CPU_INCORRECT_ID      = nullptr;
-static char *CPU_INCORRECT_VERSION = nullptr;
-static char *CPU_INCORRECT_NUM     = nullptr;
-
-
+enum code_errors
+{
+    CPU_INCORRECT_ID      = 0x1 << 0,
+    CPU_INCORRECT_VERSION = 0x1 << 1,
+    CPU_INCORRECT_NUM     = 0x1 << 2
+};
 
 #endif /* CPU_H */
