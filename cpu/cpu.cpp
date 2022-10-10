@@ -222,34 +222,30 @@ int calc (Calc *calc, const int number)
             }
             default:
             {
-                int err = 0;
+                int status = 0;
+                int arg = 0;
 
                 if (cmd & ARG_IMMED)
                 {
-                    calc->ip++;
+                    arg = calc->op_code[++(calc->ip)];
 
-                    stack_push (&stk, calc->op_code[calc->ip]);
+                    status++;
 
-                    calc->ip++;
-
-                    err++;
-
-                    break;
                 }
                 if (cmd & ARG_REGISTR)
                 {
-                    calc->ip++;
+                    arg = calc->regs[calc->op_code[++(calc->ip)]];
 
-                    stack_push (&stk, calc->regs[calc->op_code[calc->ip]]);
-
-                    calc->ip++;
-
-                    err++;
-
-                    break;
+                    status++;
                 }
 
-                if (!(err))
+                if (status)
+                {
+                    stack_push (&stk, arg);
+                    calc->ip++;
+                    break;
+                }
+                else
                 {
                     fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", calc->op_code[calc->ip], calc->ip);
                     return 0;
