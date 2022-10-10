@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "..\..\standart_functions\io\io.h"
 #include "cpu.h"
 #include "../calc.h"
 
@@ -33,11 +32,7 @@ int main (int argc, const char *argv[])
     assert (op_code);
 
     fread (op_code, sizeof (int), head.number, asm_file);
-    int  i = 0;
-    while (i < head.number)
-    {
-        printf ("%d\t", op_code[i++]);
-    }
+
     calc (op_code, head.number);
 
     free (op_code);
