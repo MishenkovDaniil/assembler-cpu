@@ -1,9 +1,11 @@
-push 50
-pUsh 23
-sub
-push 15
-push 12
-sub
-div
+push RAX
+next:
+dup
+dup
+mult
 out
+push 1
+add
+push 10
+jb next
 hlt
