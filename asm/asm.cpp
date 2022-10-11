@@ -10,63 +10,68 @@ int init_code (char *text, int *op_code, Label *label)
     int number = 0;
     int ip = 0;
 
-    while (*(text + number + 1) != '\0')
+    while (*(text + 1) != '\0')
     {
         int temp = 0;
         char cmd[100] = {};
         int label_index = 0;
         int temp_label_index = 0;
 
-        sscanf (text + number, "%s%n", cmd, &temp);
-        number += temp;
+        sscanf (text, "%s%n", cmd, &temp);
+        text += temp + 1;
         temp = 0;
 
         if (stricmp (cmd, "push") == 0)
         {
             int start_ip = ip;
 
-            int val = 0;
+            if (isdigit (*(text)))
+            {
+                printf ("*text = [%c]\n", *text);
+                int val = 0;
 
-            sscanf (text + number, "%d%n", &val, &temp);
+                sscanf (text, "%d%n", &val, &temp);
 
-            op_code[start_ip] = CMD_PUSH | ARG_IMMED;
-            ip++;
-            op_code[ip++] = val;
+                op_code[start_ip] |= CMD_PUSH | ARG_IMMED;
+                ip++;
+                op_code[ip] = val;
 
-            number += temp;
+                text += temp;
 
-            temp = 0;
-
-            if (isalpha (*(text + ++number)))
+                temp = 0;
+            }
+            if (isalpha (*(text + 1)))
             {
                 char reg[5] = {};
 
-                if (*(text + number) == '+')
+                if (*(text) == '+')
                 {
-                    number++;
+                    text++;
                 }
 
-                sscanf (text + number, "%s%n", reg, &temp);
+                sscanf (text, "%s%n\n", reg, &temp);
 
-                printf ("%s", reg);
+                printf ("%s\n", reg);
 
                 op_code[start_ip] |= CMD_PUSH | ARG_REGISTR;
 
+                ip++;
+
                 if (stricmp (reg, "RAX") == 0)
                 {
-                    op_code[ip++] = RAX_NUM;
+                    op_code[ip] = RAX_NUM;
                 }
                 else if (stricmp (reg, "RBX") == 0)
                 {
-                    op_code[ip++] = RBX_NUM;
+                    op_code[ip] = RBX_NUM;
                 }
                 else if (stricmp (reg, "RCX") == 0)
                 {
-                    op_code[ip++] = RCX_NUM;
+                    op_code[ip] = RCX_NUM;
                 }
                 else if (stricmp (reg, "RDX") == 0)
                 {
-                    op_code[ip++] = RDX_NUM;
+                    op_code[ip] = RDX_NUM;
                 }
                 else
                 {
@@ -74,7 +79,9 @@ int init_code (char *text, int *op_code, Label *label)
                 }
             }
 
-            number += temp;
+            ip++;
+
+            text += temp;
 
             temp = 0;
         }
@@ -116,10 +123,10 @@ int init_code (char *text, int *op_code, Label *label)
 
             if (!(temp_label_index))
             {
-                char temp[100] = {};
-                my_strcpy (temp, cmd);
+                char temp_arr[100] = {};
+                my_strcpy (temp_arr, cmd);
 
-                label->name[label_index] = temp;
+                label->name[label_index] = temp_arr;
 
                 label->value[label_index++] = ip;
 
@@ -172,9 +179,9 @@ int init_code (char *text, int *op_code, Label *label)
             }
 
             char jmp_name[100] = {};
-            sscanf (text + number, "%s%n", jmp_name, &temp);
+            sscanf (text, "%s%n", jmp_name, &temp);
 
-            number += temp;
+            text += temp;
             temp = 0;
 
             temp_label_index = is_label_name (label, jmp_name);
@@ -185,10 +192,10 @@ int init_code (char *text, int *op_code, Label *label)
             }
             else if (!(temp_label_index))
             {
-                char temp[100] = {};
-                my_strcpy (temp, jmp_name);
+                char temp_arr[100] = {};
+                my_strcpy (temp_arr, jmp_name);
 
-                label->name[label_index] = temp;
+                label->name[label_index] = temp_arr;
                 label->value[label_index++] = -1;   //
 
                 op_code[ip++] = -1;  //
