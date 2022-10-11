@@ -24,29 +24,31 @@ int calc (Calc *calc, const int number)
     while (calc->ip < number)
     {
         int cmd = calc->op_code[calc->ip];
+        int arg = 0;
 
-        switch (cmd)
+        switch (cmd & CMD_MASK)
         {
-            /*case CMD_PUSH | ARG_REGISTR:
+            case CMD_PUSH:
             {
-                calc->ip++;
+                if (cmd & ARG_IMMED)
+                {
+                    calc->ip++;
 
-                stack_push (&stk, calc->regs[calc->op_code[calc->ip]]);
+                    arg += calc->op_code[calc->ip];
 
-                calc->ip++;
+                    calc->ip++;
+                }
+                if (cmd & ARG_REGISTR)
+                {
+                    arg += calc->regs[calc->op_code[calc->ip]];
+
+                    calc->ip++;
+                }
+
+                stack_push (&stk, arg);
 
                 break;
             }
-            case CMD_PUSH | ARG_IMMED:
-            {
-                calc->ip++;
-
-                stack_push (&stk, calc->op_code[calc->ip]);
-
-                calc->ip++;
-
-                break;
-            }*/
             case CMD_SUB:
             {
                 val_1  = stack_pop (&stk);
@@ -222,34 +224,8 @@ int calc (Calc *calc, const int number)
             }
             default:
             {
-                int status = 0;
-                int arg = 0;
-
-                if (cmd & ARG_IMMED)
-                {
-                    arg += calc->op_code[++(calc->ip)];
-
-                    status++;
-
-                }
-                if (cmd & ARG_REGISTR)
-                {
-                    arg += calc->regs[calc->op_code[++(calc->ip)]];
-
-                    status++;
-                }
-
-                if (status)
-                {
-                    stack_push (&stk, arg);
-                    calc->ip++;
-                    break;
-                }
-                else
-                {
-                    fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", calc->op_code[calc->ip], calc->ip);
-                    return 0;
-                }
+                fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", calc->op_code[calc->ip], calc->ip);
+                return 0;
             }
         }
     }

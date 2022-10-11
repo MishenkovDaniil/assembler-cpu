@@ -6,6 +6,8 @@
 int check_asm_file (Head *head, const int file_id, const int version);
 int calc (Calc *calc, const int number);
 
+static const int CMD_MASK = 0b00001111;
+
 enum code_errors
 {
     CPU_INCORRECT_ID      = 0x1 << 0,
