@@ -1,24 +1,11 @@
 #ifndef CALC_H
 #define CALC_H
 
+#define DEF_CMD(name, num,...) CMD_##name = num,
+
 enum op_codes
 {
-    CMD_HLT  = 0,
-    CMD_PUSH = 1,
-    CMD_SUB  = 2,
-    CMD_ADD  = 3,
-    CMD_MULT = 4,
-    CMD_DIV  = 5,
-    CMD_OUT  = 6,
-    CMD_DUP  = 7,
-    CMD_JMP  = 8,
-    CMD_JB   = 9,
-    CMD_JBE  = 10,
-    CMD_JA   = 11,
-    CMD_JAE  = 12,
-    CMD_JE   = 13,
-    CMD_JNE  = 14,
-    CMD_JT   = 15,
+    #include "cmd.h"
 };
 
 enum types
