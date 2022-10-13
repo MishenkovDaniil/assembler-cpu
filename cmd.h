@@ -1,0 +1,21 @@
+#ifndef CMD_H
+#define CMD_H
+
+DEF_CMD (HLT, 0)
+DEF_CMD (PUSH, 1)
+DEF_CMD (SUB, 2)
+DEF_CMD (ADD, 3)
+DEF_CMD (MULT, 4)
+DEF_CMD (DIV, 5)
+DEF_CMD (OUT, 6)
+DEF_CMD (DUP, 7)
+DEF_CMD (JMP, 8)
+DEF_CMD (JB, 9)
+DEF_CMD (JBE, 10)
+DEF_CMD (JA, 11)
+DEF_CMD (JAE, 12)
+DEF_CMD (JE, 13)
+DEF_CMD (JNE, 14)
+DEF_CMD (JT, 15)
+
+#endif /* CMD_H */
