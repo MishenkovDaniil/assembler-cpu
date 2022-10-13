@@ -5,6 +5,15 @@
 #include "asm.h"
 #include "../../Onegin/str.h"
 
+#define DEF_CMD(name, num, arg, arg_name) if (stricmp (cmd, #name) == 0)\
+                                          {\
+                                              op_code[ip++] = num;\
+                                              if (arg)\
+                                              {\
+                                                  assemble_##arg_name##_arg (&text, op_code, &ip, label, &label_index);\
+                                              }\
+                                          }\
+                                          else
 int init_code (char *text, int *op_code, Label *label)
 {
     int number = 0;
@@ -20,84 +29,16 @@ int init_code (char *text, int *op_code, Label *label)
         text += temp + 1;
         temp = 0;
 
+        if (isspace_s (cmd))
+        {
+            printf ("1");
+            continue;
+        }
 
-        if (stricmp (cmd, "push") == 0)
+        #include "../cmd.h"
+        /*else*/ if (strchr (cmd, ':'))
         {
-            op_code[ip++] = CMD_PUSH;
-            assemble_push_arg (&text, op_code, &ip);
-        }
-        else if (stricmp (cmd, "sub") == 0)
-        {
-            op_code[ip++] = CMD_SUB;
-        }
-        else if (stricmp (cmd, "add") == 0)
-        {
-            op_code[ip++] = CMD_ADD;
-        }
-        else if (stricmp (cmd, "mult") == 0)
-        {
-            op_code[ip++] = CMD_MULT;
-        }
-        else if (stricmp (cmd, "div") == 0)
-        {
-            op_code[ip++] = CMD_DIV;
-        }
-        else if (stricmp (cmd, "out") == 0)
-        {
-            op_code[ip++] = CMD_OUT;
-        }
-        else if (stricmp (cmd, "hlt") == 0)
-        {
-            op_code[ip++] = CMD_HLT;
-            break;
-        }
-        else if (stricmp (cmd, "dup") == 0)
-        {
-            op_code[ip++] = CMD_DUP;
-        }
-        else if (stricmp (cmd, "jmp") == 0)
-        {
-            op_code[ip++] = CMD_JMP;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "jb") == 0)
-        {
-            op_code[ip++] = CMD_JB;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "jbe") == 0)
-        {
-            op_code[ip++] = CMD_JBE;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "ja") == 0)
-        {
-            op_code[ip++] = CMD_JA;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "jae") == 0)
-        {
-            op_code[ip++] = CMD_JAE;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "je") == 0)
-        {
-            op_code[ip++] = CMD_JE;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "jne") == 0)
-        {
-            op_code[ip++] = CMD_JNE;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (stricmp (cmd, "jt") == 0)
-        {
-            op_code[ip++] = CMD_JT;
-            assemble_jmp (&text, op_code, &ip, label, &label_index);
-        }
-        else if (strchr (cmd, ':'))
-        {
-            assemble_label (cmd, &ip, label, &label_index);
+            assemble_label_arg (cmd, &ip, label, &label_index);
         }
         else
         {
@@ -108,6 +49,24 @@ int init_code (char *text, int *op_code, Label *label)
     }
 
     return ip;
+}
+
+#undef DEF_CMD
+
+int isspace_s (char *arr)
+{
+    while (*arr != '\0')
+    {
+        if (!(isspace (*arr)))
+        {
+            return 0;
+        }
+        else
+        {
+            arr++;
+        }
+    }
+    return 1;
 }
 
 int is_label_name (Label *label, const char *jmp_name)
@@ -135,7 +94,7 @@ void print_op_code (FILE *out_file, int *op_code, int number, const int file_id,
     fwrite (op_code, sizeof (int), number, out_file);
 }
 
-void assemble_push_arg (char **text, int *op_code, int *ip)
+void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *label_index)
 {
     int start_ip = --(*ip);
     int temp = 0;
@@ -201,7 +160,7 @@ void assemble_push_arg (char **text, int *op_code, int *ip)
     temp = 0;
 }
 
-void assemble_jmp (char **text, int *op_code, int *ip, Label *label, int *label_index)
+void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *label_index)
 {
     char jmp_name[100] = {};
     int temp_label_index = 0;
@@ -226,7 +185,7 @@ void assemble_jmp (char **text, int *op_code, int *ip, Label *label, int *label_
     }
 }
 
-void assemble_label (char *cmd, int *ip, Label *label, int *label_index)
+void assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index)
 {
     int temp_label_index = 0;
     char *pname = strchr (cmd, ':');
