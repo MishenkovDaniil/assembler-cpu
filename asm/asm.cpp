@@ -5,20 +5,32 @@
 #include "asm.h"
 #include "../../Onegin/str.h"
 
-#define DEF_CMD(name, num, arg, arg_name) if (stricmp (cmd, #name) == 0)\
+#define ISSPACE(text) while (isspace (*(text)))\
+                      {\
+                          (text)++;\
+                      }
+#define DEF_CMD(name, num, arg, arg_name,...) if (stricmp (cmd, #name) == 0)\
                                           {\
                                               op_code[ip++] = num;\
                                               if (arg)\
                                               {\
-                                                  assemble_##arg_name##_arg (&text, op_code, &ip, label, &label_index);\
+                                                  assemble_##arg_name##_arg (&text, op_code, &ip, label, &label_index, &err);\
+                                              }\
+                                              if (err)\
+                                              {\
+                                                printf ("\nsyntax error\n");\
+                                                break;\
                                               }\
                                           }\
                                           else
+#define DEF_JMP(name, num, arg, arg_name,...) DEF_CMD(name, num, arg, arg_name, __VA_ARGS__)
+
 int init_code (char *text, int *op_code, Label *label)
 {
     int number = 0;
     int ip = 0;
     int label_index = 0;
+    int err = 0;
 
     while (*(text + 1) != '\0')
     {
@@ -28,17 +40,17 @@ int init_code (char *text, int *op_code, Label *label)
         sscanf (text, "%s%n", cmd, &temp);
         text += temp + 1;
         temp = 0;
+        fprintf (stderr, "command is {%s}\n", cmd);
 
         if (isspace_s (cmd))
         {
-            printf ("1");
             continue;
         }
 
         #include "../cmd.h"
         /*else*/ if (strchr (cmd, ':'))
         {
-            assemble_label_arg (cmd, &ip, label, &label_index);
+            assemble_label_arg (cmd, &ip, label, &label_index, &err);
         }
         else
         {
@@ -52,6 +64,7 @@ int init_code (char *text, int *op_code, Label *label)
 }
 
 #undef DEF_CMD
+#undef DEF_JMP
 
 int isspace_s (char *arr)
 {
@@ -93,15 +106,35 @@ void print_op_code (FILE *out_file, int *op_code, int number, const int file_id,
     fwrite (&head, sizeof (struct Head), 1, out_file);
     fwrite (op_code, sizeof (int), number, out_file);
 }
+void assemble_pop_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
+{
+    int start_ip = *ip - 1;
 
-void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *label_index)
+    assemble_push_arg (text, op_code, ip, label, label_index, err);
+
+    if (!(op_code[start_ip] & ARG_MEM))
+    {
+        *err = 1;               ///////
+    }
+}
+
+void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
 {
     int start_ip = --(*ip);
     int temp = 0;
+    char *pmem = strchr (*text, ']');
 
+    if (**text == '[' && pmem > *text)
+    {
+        op_code[start_ip] |= ARG_MEM;
+
+        (*text)++;
+
+        *pmem = '\0';
+        ISSPACE (*text);
+    }
     if (isdigit (**text))
     {
-        printf ("*text = [%c]\n", **text);
         int val = 0;
 
         sscanf (*text, "%d%n", &val, &temp);
@@ -113,20 +146,23 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
         *text += temp;
 
         temp = 0;
+        ISSPACE (*text);
     }
-    if (isalpha (*((*text) + 1)))
+    if ((*text < pmem || pmem == nullptr) && (!(op_code[start_ip] & ARG_IMMED) && isalpha (**text)) || ((op_code[start_ip] & ARG_IMMED > 0) && **text == '+'))
     {
         char reg[5] = {};
 
         if (**(text) == '+')
         {
             (*text)++;
+            ISSPACE (*text);
         }
 
         sscanf (*text, "%s%n\n", reg, &temp);
-
-        printf ("%s\n", reg);
-
+        if (reg > pmem)
+        {
+            goto syntax_error;
+        }
         op_code[start_ip] |= ARG_REGISTR;
 
         (*ip)++;
@@ -149,18 +185,25 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
         }
         else
         {
-            printf ("syntax error");
+            syntax_error:
+            temp = 0;
+            *err = 1;               ////////
         }
+        *text += temp;
+
+        temp = 0;
     }
 
     (*ip)++;
 
-    *text += temp;
-
-    temp = 0;
+    if (pmem)
+    {
+        *pmem = ']';
+        *text = pmem + 1;
+    }
 }
 
-void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *label_index)
+void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
 {
     char jmp_name[100] = {};
     int temp_label_index = 0;
@@ -179,13 +222,13 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
     else if (!(temp_label_index))
     {
         my_strcpy (label->name[*label_index], jmp_name);
-        label->value[(*label_index)++] = -1;   //
+        label->value[(*label_index)++] = UNDEFINED;   //
 
-        op_code[(*ip)++] = -1;  //
+        op_code[(*ip)++] = UNDEFINED;  //
     }
 }
 
-void assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index)
+void assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int *err)
 {
     int temp_label_index = 0;
     char *pname = strchr (cmd, ':');
