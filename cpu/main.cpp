@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #include "cpu.h"
-#include "../calc.h"
+#include "..\calc.h"
 
 int main (int argc, const char *argv[])
 {
@@ -17,17 +17,21 @@ int main (int argc, const char *argv[])
 
     FILE *asm_file = fopen (argv[1], "rb");
     assert (asm_file);
+    --argc;
 
     const int FILE_ID = 0x00005A4D;
     const int VERSION = 1;
 
     struct Head head = {};
-    struct Calc ccalc = {};
+    struct Calc cpu = {};
 
-    ccalc.regs[1] = atoi (argv[2]);
-    ccalc.regs[2] = atoi (argv[3]);
-    ccalc.regs[3] = atoi (argv[4]);
-    ccalc.regs[4] = atoi (argv[5]);
+    int reg_number = 1;
+
+    while (--argc > 0)
+    {
+        cpu.regs[reg_number] = atoi (argv[reg_number + 1]);
+        reg_number++;
+    }
 
     fread (&head, sizeof (head), 1, asm_file);
 
@@ -36,15 +40,16 @@ int main (int argc, const char *argv[])
         return 0;
     }
 
-    ccalc.op_code = (int *)calloc (head.number, sizeof (int));
-    assert (ccalc.op_code);
+    cpu.op_code = (int *)calloc (head.number, sizeof (int));
+    assert (cpu.op_code);
 
-    fread (ccalc.op_code, sizeof (int), head.number, asm_file);
+    fread (cpu.op_code, sizeof (int), head.number, asm_file);
 
-    calc (&ccalc, head.number);
+    calc (&cpu, head.number);
 
-    free (ccalc.op_code);
+    free (cpu.op_code);
     fclose (asm_file);
 
     return 0;
 }
+
