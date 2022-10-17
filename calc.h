@@ -2,11 +2,18 @@
 #define CALC_H
 
 #define DEF_CMD(name, num,...) CMD_##name = num,
+#define DEF_JMP(name, num,...) DEF_CMD(name, num, __VA_ARGS__)
 
 enum op_codes
 {
     #include "cmd.h"
 };
+
+#undef DEF_CMD
+#undef DEF_JMP
+
+static const int RAM_SIZE = 100;
+static const int REG_SIZE = 5;
 
 enum types
 {
@@ -29,7 +36,9 @@ struct Calc
 
     int ip = 0;
 
-    int regs[5] = {};
+    int regs[REG_SIZE] = {0};
+
+    int RAM[RAM_SIZE] = {};
 };
 
 struct Head
