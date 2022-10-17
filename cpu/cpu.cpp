@@ -3,230 +3,132 @@
 
 #define STACK_DEBUG
 
+#define STACK stk
+#define POP stack_pop (&STACK)
+#define PUSH(val) stack_push (&STACK, (val))
+#define IP cpu->ip
+#define CODE cpu->op_code
+#define FUNC func
+#define CPU cpu
+
 #include "cpu.h"
 #include "..\..\Stack\stack\stack.h"
 #include "..\calc.h"
 
-int calc (Calc *calc, const int number)
+void process_call_arg (Stack *func, Calc *cpu);
+
+#define DEF_CMD(name, num, arg, arg_name, code) \
+        case num:\
+        {\
+            code\
+            break;\
+        }
+#define DEF_JMP(name, num, arg, arg_name, sign) \
+        case num:\
+        {\
+            val_1 = POP;\
+            val_2 = POP;\
+            \
+            PUSH (val_2);\
+            \
+            if (val_2 sign val_1)\
+            {\
+               IP = CODE[IP];\
+            }\
+            else\
+            {\
+               IP++;\
+            }\
+            \
+            break;\
+        }
+
+int calc (Calc *cpu, const int number)
 {
-    assert (calc && number);
+    assert (cpu && number);
 
     int val_1 = 0;
     int val_2 = 0;
 
     Stack stk = {};
+    Stack func = {};
 
     int start_capacity = 2;
 
     stack_init (&stk, start_capacity);
+    stack_init (&func, start_capacity);
 
-
-    while (calc->ip < number)
+    while (cpu->ip < number)
     {
-        int cmd = calc->op_code[calc->ip];
+        int cmd = CODE[IP++];
         int arg = 0;
 
         switch (cmd & CMD_MASK)
         {
-            case CMD_PUSH:
-            {
-                if (cmd & ARG_IMMED)
-                {
-                    calc->ip++;
-
-                    arg += calc->op_code[calc->ip];
-
-                    calc->ip++;
-                }
-                if (cmd & ARG_REGISTR)
-                {
-                    arg += calc->regs[calc->op_code[calc->ip]];
-
-                    calc->ip++;
-                }
-
-                stack_push (&stk, arg);
-
-                break;
-            }
-            case CMD_SUB:
-            {
-                val_1  = stack_pop (&stk);
-
-                stack_push (&stk, stack_pop (&stk) - val_1);
-
-                calc->ip++;
-                break;
-            }
-            case CMD_ADD:
-            {
-                stack_push (&stk, stack_pop (&stk) + stack_pop (&stk));
-
-                calc->ip++;
-                break;
-            }
-            case CMD_MULT:
-            {
-                stack_push (&stk, stack_pop (&stk) * stack_pop (&stk));
-
-                calc->ip++;
-                break;
-            }
-            case CMD_DIV:
-            {
-                val_1 = stack_pop (&stk);
-
-                stack_push (&stk, stack_pop (&stk) / val_1);
-
-                calc->ip++;
-                break;
-            }
-            case CMD_OUT:
-            {
-                val_1 = stack_pop (&stk);
-
-                printf ("\nresult is [%d]\n", val_1);
-
-                calc->ip++;
-                break;
-            }
-            case CMD_HLT:
-            {
-                stack_dtor (&stk);
-
-                calc->ip++;
-                return 0;
-            }
-            case CMD_DUP:
-            {
-                val_1 = stack_pop (&stk);
-
-                stack_push (&stk, val_1);
-                stack_push (&stk, val_1);
-
-                calc->ip++;
-                break;
-            }
-            case CMD_JMP:
-            {
-                calc->ip = calc->op_code[calc->ip + 1];
-
-                break;
-            }
-            case CMD_JB:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                stack_push (&stk, val_2);
-
-                if (val_2 < val_1)
-                {
-                    calc->ip = calc->op_code[calc->ip + 1];
-                    printf ("op_code = %d\n\n", calc->ip);
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
-            case CMD_JBE:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                stack_push (&stk, val_2);
-
-                if (val_2 <= val_1)
-                {
-                    calc->ip = calc->op_code[calc->ip + 1];
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
-            case CMD_JA:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                if (val_2 > val_1)
-                {
-                    stack_push (&stk, val_2);
-
-                    calc->ip = calc->op_code[calc->ip + 1];
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
-            case CMD_JAE:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                stack_push (&stk, val_2);
-
-                if (val_2 >= val_1)
-                {
-                    calc->ip = calc->op_code[calc->ip + 1];
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
-            case CMD_JE:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                stack_push (&stk, val_2);
-
-                if (val_2 == val_1)
-                {
-                    calc->ip = calc->op_code[calc->ip + 1];
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
-            case CMD_JNE:
-            {
-                val_1 = stack_pop (&stk);
-                val_2 = stack_pop (&stk);
-
-                stack_push (&stk, val_2);
-
-                if (val_2 != val_1)
-                {
-                    calc->ip = calc->op_code[calc->ip + 1];
-                }
-                else
-                {
-                    calc->ip += 2;
-                }
-
-                break;
-            }
+            #include "../cmd.h"
             default:
             {
-                fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", calc->op_code[calc->ip], calc->ip);
+                fprintf (stderr, "ERROR: incorrect input info [%d][%d]\n", CODE[IP], IP);
                 return 0;
             }
         }
     }
 }
+
+#undef DEF_CMD
+#undef DEF_JMP
+
+int process_push_arg (int cmd, Calc *cpu)
+{
+    int arg = 0;
+
+    if (cmd & ARG_IMMED)
+    {
+        arg += cpu->op_code[cpu->ip++];
+    }
+    if (cmd & ARG_REGISTR)
+    {
+        arg += cpu->regs[cpu->op_code[cpu->ip++]];
+    }
+    if (cmd & ARG_MEM)
+    {
+        arg = cpu->RAM[arg];
+    }
+
+    return arg;
+}
+
+void process_pop_arg (int cmd, Calc *cpu, int arg)
+{
+    if (cmd & ARG_MEM)
+    {
+        if (cmd & ARG_IMMED && cmd & ARG_REGISTR)
+        {
+            cpu->RAM[cpu->op_code[cpu->ip] + cpu->regs[cpu->ip + 1]] = arg;
+            cpu->ip += 2;
+        }
+        else if (cmd & ARG_IMMED)
+        {
+            cpu->RAM[cpu->op_code[cpu->ip++]] = arg;
+        }
+        else if (cmd & ARG_REGISTR)
+        {
+            cpu->RAM[cpu->regs[cpu->ip++]] = arg;
+        }
+    }
+    else if (cmd & ARG_REGISTR)
+    {
+        cpu->regs[cpu->op_code[cpu->ip++]] = arg;
+    }
+}
+
+void process_call_arg (Stack *func, Calc *cpu)
+{
+    stack_push (func, cpu->ip + 1);
+
+    cpu->ip = cpu->op_code[cpu->ip];
+}
+
+/*void process_ret_arg (Stack *func, Calc *cpu)
+{
+}*/

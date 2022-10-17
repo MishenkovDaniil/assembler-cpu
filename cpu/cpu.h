@@ -5,8 +5,10 @@
 
 int check_asm_file (Head *head, const int file_id, const int version);
 int calc (Calc *calc, const int number);
+int process_push_arg (int cmd, Calc *cpu);
+void process_pop_arg (int cmd, Calc *cpu, int arg);
 
-static const int CMD_MASK = 0b00001111;
+static const int CMD_MASK = 0x0F;
 
 enum code_errors
 {
