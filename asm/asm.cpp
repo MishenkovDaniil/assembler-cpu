@@ -54,7 +54,7 @@ int init_code (char *text, int *op_code, Label *label)
         }
         else
         {
-            error: printf ("ERROR: incorrect input info\ncommand is [%s]", cmd);
+            error: printf ("ERROR: incorrect input info\ncommand is [%s]\n", cmd);
 
             return 0;
         }
@@ -106,17 +106,6 @@ void print_op_code (FILE *out_file, int *op_code, int number, const int file_id,
     fwrite (&head, sizeof (struct Head), 1, out_file);
     fwrite (op_code, sizeof (int), number, out_file);
 }
-void assemble_pop_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
-{
-    int start_ip = *ip - 1;
-
-    assemble_push_arg (text, op_code, ip, label, label_index, err);
-
-    if (!(op_code[start_ip] & ARG_MEM))
-    {
-        *err = 1;               ///////
-    }
-}
 
 void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
 {
@@ -132,6 +121,10 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
 
         *pmem = '\0';
         ISSPACE (*text);
+    }
+    else
+    {
+        pmem = nullptr;
     }
     if (isdigit (**text))
     {
@@ -159,7 +152,7 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
         }
 
         sscanf (*text, "%s%n\n", reg, &temp);
-        if (reg > pmem)
+        if (reg > pmem && pmem != nullptr)
         {
             goto syntax_error;
         }
@@ -228,11 +221,14 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
     }
 }
 
-void assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int *err)
+int assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int *err)
 {
     int temp_label_index = 0;
     char *pname = strchr (cmd, ':');
-    *pname = '\0';
+    if (pname)
+    {
+        *pname = '\0';
+    }
 
     temp_label_index = is_label_name (label, cmd);
 
@@ -240,12 +236,36 @@ void assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int
     {
         my_strcpy (label->name[(*label_index)], cmd);
 
+        temp_label_index = *label_index;
+
         label->value[(*label_index)++] = *ip;
     }
     else
     {
-        label->value[temp_label_index] = *ip;
+        label->value[--temp_label_index] = *ip;
+
+        if (temp_label_index > *label_index)
+        {
+            *label_index = temp_label_index + 1;
+        }
     }
 
-    *pname = ':';
+    if (pname)
+    {
+        *pname = ':';
+    }
+
+    return temp_label_index;
 }
+/*
+void assemble_call_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
+{
+    char cmd[100] = {};
+    int temp = 0;
+    sscanf (*text, "%s%n", cmd, &temp);
+
+    text += temp;
+
+    op_code[(*ip)++] = label->value[]
+}
+*/
