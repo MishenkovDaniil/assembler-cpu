@@ -9,6 +9,7 @@
                       {\
                           (text)++;\
                       }
+#define DEF_JMP(name, num, arg, arg_name,...) DEF_CMD(name, num, arg, arg_name, __VA_ARGS__)
 #define DEF_CMD(name, num, arg, arg_name,...) if (stricmp (cmd, #name) == 0)\
                                           {\
                                               op_code[ip++] = num;\
@@ -23,7 +24,6 @@
                                               }\
                                           }\
                                           else
-#define DEF_JMP(name, num, arg, arg_name,...) DEF_CMD(name, num, arg, arg_name, __VA_ARGS__)
 
 int init_code (char *text, int *op_code, Label *label)
 {
@@ -112,6 +112,7 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
     int start_ip = --(*ip);
     int temp = 0;
     char *pmem = strchr (*text, ']');
+    int sign = 1;
 
     if (**text == '[' && pmem > *text)
     {
@@ -126,6 +127,19 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
     {
         pmem = nullptr;
     }
+
+    if (**text == '-')
+    {
+        sign = -1;
+        (*text)++;
+        ISSPACE (*text);
+    }
+    else if (**text == '+')
+    {
+        (*text)++;
+        ISSPACE (*text);
+    }
+
     if (isdigit (**text))
     {
         int val = 0;
@@ -134,7 +148,7 @@ void assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *l
 
         op_code[start_ip] |= ARG_IMMED;
         (*ip)++;
-        op_code[*ip] = val;
+        op_code[*ip] = sign * val;
 
         *text += temp;
 
