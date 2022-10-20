@@ -1,6 +1,6 @@
 
 
-push 5
+push 6
 dup
 pop RAX
 call FACTORIAL
@@ -22,11 +22,8 @@ dup
 out
 
 call FACTORIAL
-
-jmp kkk
+RET
 
 next:
 pop RAX
-
-kkk:
 RET
