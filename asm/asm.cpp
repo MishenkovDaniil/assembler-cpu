@@ -222,16 +222,20 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
 
     temp_label_index = is_label_name (label, jmp_name);
 
-    if (temp_label_index > 0) //&& label->value[--temp_label_index] != -1)
+    if (temp_label_index > 0 && label->value[temp_label_index - 1] != 0xFFFFFFFF)
     {
         op_code[(*ip)++] = label->value[--temp_label_index];
     }
     else if (!(temp_label_index))
     {
         my_strcpy (label->name[*label_index], jmp_name);
-        label->value[(*label_index)++] = UNDEFINED;   //
+        label->value[(*label_index)++] = UNDEFINED;
 
-        op_code[(*ip)++] = UNDEFINED;  //
+        op_code[(*ip)++] = UNDEFINED;
+    }
+    else
+    {
+        printf ("ERROR: label [%s] does not exist\n", jmp_name);
     }
 }
 
@@ -271,15 +275,4 @@ int assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int 
 
     return temp_label_index;
 }
-/*
-void assemble_call_arg (char **text, int *op_code, int *ip, Label *label, int *label_index, int *err)
-{
-    char cmd[100] = {};
-    int temp = 0;
-    sscanf (*text, "%s%n", cmd, &temp);
 
-    text += temp;
-
-    op_code[(*ip)++] = label->value[]
-}
-*/
