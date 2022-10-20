@@ -4,12 +4,14 @@
 #define STACK_DEBUG
 
 #define STACK stk
+#define FUNC func
+
 #define POP stack_pop (&STACK)
 #define PUSH(val) stack_push (&STACK, (val))
+
+#define CPU cpu
 #define IP cpu->ip
 #define CODE cpu->op_code
-#define FUNC func
-#define CPU cpu
 
 #include "cpu.h"
 #include "..\..\Stack\stack\stack.h"
@@ -37,7 +39,7 @@ void process_call_arg (Stack *func, Calc *cpu);
             }\
             else\
             {\
-               IP++;\
+                (IP)++;\
             }\
             \
             break;\
@@ -104,7 +106,7 @@ void process_pop_arg (int cmd, Calc *cpu, int arg)
     {
         if (cmd & ARG_IMMED && cmd & ARG_REGISTR)
         {
-            cpu->RAM[cpu->op_code[cpu->ip] + cpu->regs[cpu->ip + 1]] = arg;
+            cpu->RAM[cpu->op_code[cpu->ip] + cpu->regs[cpu->op_code[cpu->ip + 1]]] = arg;
             cpu->ip += 2;
         }
         else if (cmd & ARG_IMMED)
@@ -113,7 +115,7 @@ void process_pop_arg (int cmd, Calc *cpu, int arg)
         }
         else if (cmd & ARG_REGISTR)
         {
-            cpu->RAM[cpu->regs[cpu->ip++]] = arg;
+            cpu->RAM[cpu->regs[cpu->op_code[cpu->ip++]]] = arg;
         }
     }
     else if (cmd & ARG_REGISTR)
@@ -124,11 +126,9 @@ void process_pop_arg (int cmd, Calc *cpu, int arg)
 
 void process_call_arg (Stack *func, Calc *cpu)
 {
-    stack_push (func, cpu->ip + 1);
+    int a = cpu->ip;
+    stack_push (func, a + 1);
 
     cpu->ip = cpu->op_code[cpu->ip];
 }
 
-/*void process_ret_arg (Stack *func, Calc *cpu)
-{
-}*/
