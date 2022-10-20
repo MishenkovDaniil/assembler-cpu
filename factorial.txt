@@ -1,0 +1,32 @@
+
+
+push 5
+dup
+pop RAX
+call FACTORIAL
+out
+hlt
+
+FACTORIAL:
+
+push RAX
+push 1
+je next
+
+push 1
+sub
+dup
+pop RAX
+mult
+dup
+out
+
+call FACTORIAL
+
+jmp kkk
+
+next:
+pop RAX
+
+kkk:
+RET
