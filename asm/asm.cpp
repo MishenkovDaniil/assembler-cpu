@@ -22,8 +22,15 @@ int init_code (char *text, int *op_code, Label *label)
         char cmd[ARR_SIZE] = {};
 
         sscanf (text, "%s%n", cmd, &temp);
+
         text += temp + 1;
         temp = 0;
+
+        if (is_comment (cmd, &text))
+        {
+            continue;
+        }
+
         fprintf (stderr, "command is {%s}\n", cmd);
 
         if (is_empty_str (cmd))
