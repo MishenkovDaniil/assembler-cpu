@@ -162,23 +162,17 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
 
         op_code[start_ip] |= ARG_REGISTR;
 
-        if (stricmp (reg, "RAX") == 0)
-        {
-            op_code[*ip] = RAX_NUM;
-        }
-        else if (stricmp (reg, "RBX") == 0)
-        {
-            op_code[*ip] = RBX_NUM;
-        }
-        else if (stricmp (reg, "RCX") == 0)
-        {
-            op_code[*ip] = RCX_NUM;
-        }
-        else if (stricmp (reg, "RDX") == 0)
-        {
-            op_code[*ip] = RDX_NUM;
-        }
+        #define DEF_REG(name, num)      \
+        if (stricmp (reg, #name) == 0)  \
+        {                               \
+            op_code[*ip] = name##_NUM;  \
+        }                               \
         else
+
+        #include "..\regs.h"
+
+        #undef DEF_REG
+        /* else */
         {
             fprintf (stderr, "ERROR: sytax error, register with this name doesn't exist");
             return 0;
