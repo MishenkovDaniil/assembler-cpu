@@ -221,7 +221,7 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
 
     temp_label_index = is_label_name (label, jmp_name);
 
-    if (temp_label_index > 0 && label->value[temp_label_index - 1] != 0xFFFFFFFF)
+    if (temp_label_index > 0)
     {
         printf ("goood\n");
         printf ("[%d]\n", label->value[temp_label_index - 1]);
@@ -231,10 +231,8 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
     else if (!(temp_label_index))
     {
         my_strcpy (label->name[*label_index], jmp_name);
-        (*label_index)++;
-        //(*ip)++;
-        //label->value[(*label_index)++] = UNDEFINED;
 
+        label->value[(*label_index)++] = UNDEFINED;
         op_code[(*ip)++] = UNDEFINED;
     }
     /*else
