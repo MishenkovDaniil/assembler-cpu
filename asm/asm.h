@@ -1,20 +1,8 @@
 #ifndef ASM_H
 #define ASM_H
 
-const int MAXSIZE = 32;
-static const int MAXLEN = 20;
-
-static const int UNDEFINED = -1;
-
 static const int LABEL_NAME = 0;
 static const int ERROR = 0;
-
-struct Label
-{
-    int value[MAXSIZE] = {};
-    char name[MAXSIZE][MAXLEN] = {};
-    int status[MAXSIZE] = {};
-};
 
 
 int is_label_name (Label *label, const char *jmp_name);

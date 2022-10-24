@@ -3,6 +3,7 @@
 
 static const int RAM_SIZE = 100;
 static const int REG_SIZE = 5;
+static const int CMD_MASK = 0x0F;
 
 enum op_codes
 {
