@@ -1,11 +1,37 @@
-push RAX
-next:
-dup
-dup
-mult
+IN
+push 0
+je label_1
+IN
+push 0
+je label_2
+out
+push 3
+out
+hlt
+
+
+label_2:
 out
 push 1
-add
-push 10
-jb next
+je label_3
+jmp label_4
+
+label_1:
+IN
+push 0
+ja label_3
+push 0
+jb label_4
+
+
+label_3:
+push 100
+mult
+out
+hlt
+
+label_4:
+push 10000
+mult
+out
 hlt
