@@ -6,6 +6,8 @@
 #include "..\..\Onegin/str.h"
 #include "..\binary.h"
 #include "asm_strings.h"
+#include "..\labels.h"
+
 static const int ARR_SIZE = 100;
 static const int REG_LEN  = 5;
 
@@ -38,30 +40,31 @@ int init_code (char *text, int *op_code, Label *label)
             continue;
         }
 
-#define DEF_JMP(name, num, arg, arg_name,...)               \
-        DEF_CMD(name, num, arg, arg_name, __VA_ARGS__)
+        #define DEF_JMP(name, num, arg, arg_name,...)               \
+                DEF_CMD(name, num, arg, arg_name, __VA_ARGS__)
 
-#define DEF_CMD(name, num, arg, arg_name,...)               \
-if (stricmp (cmd, #name) == 0)                              \
-{                                                           \
-    op_code[ip++] = num;                                    \
-    if (arg)                                                \
-    {                                                       \
-        assemble_##arg_name##_arg                           \
-        (&text, op_code, &ip, label, &label_index, &err);   \
-    }                                                       \
-    if (err)                                                \
-    {                                                       \
-        printf ("\nsyntax error\n");                        \
-        break;                                              \
-    }                                                       \
-}                                                           \
-else
+        #define DEF_CMD(name, num, arg, arg_name,...)               \
+        if (stricmp (cmd, #name) == 0)                              \
+        {                                                           \
+            op_code[ip++] = num;                                    \
+            if (arg)                                                \
+            {                                                       \
+                assemble_##arg_name##_arg                           \
+                (&text, op_code, &ip, label, &label_index, &err);   \
+            }                                                       \
+            if (err)                                                \
+            {                                                       \
+                printf ("\nsyntax error\t");                        \
+                return err;                                         \
+                break;                                              \
+            }                                                       \
+        }                                                           \
+        else
 
-#include "../cmd.h"
+        #include "../cmd.h"
 
-#undef DEF_CMD
-#undef DEF_JMP
+        #undef DEF_CMD
+        #undef DEF_JMP
 
         /*else*/ if (strchr (cmd, ':'))
         {
@@ -69,7 +72,7 @@ else
         }
         else
         {
-            error: printf ("ERROR: incorrect input info\ncommand is [%s]\n", cmd);
+            printf ("ERROR: incorrect input info\ncommand is [%s]\n", cmd);
 
             return 0;
         }
@@ -96,9 +99,11 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
 {
     int start_ip = *ip - 1;
     int temp = 0;
+
     char arg[ARR_SIZE] = {0};
     char reg[REG_LEN]  = {0};
     char sign = 1;
+
     int val = 0;
     char *end_cmd = nullptr;
 
@@ -106,17 +111,17 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
     {
         fprintf (stderr, "ERROR: cannot read push argument");
 
-        return 0;
+        *err = SYNTAX_ERROR;
+        return *err;
     }
 
     if (*arg == '[')
     {
-        int last_smbl = strlen ((const char *)arg);
+        end_cmd = strchr (*text, ']');
 
-        if (arg[last_smbl] == ']')
+        if (end_cmd)
         {
             op_code[start_ip] |= ARG_MEM;
-            end_cmd = *text + last_smbl;
             *(end_cmd) = '\0';
 
             (*text)++;
@@ -124,8 +129,10 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
         }
         else
         {
-            printf ("ERROR: sintax error, '[' without ']'");
-            return 0;
+            printf ("ERROR: syntax error, '[' without ']'");
+
+            *err = SYNTAX_ERROR;
+            return *err;
         }
     }
     if (**text == '-' || **text == '+')
@@ -134,6 +141,7 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
         {
             sign *= -1;
         }
+
         (*text)++;
         skip_spaces (text);
     }
@@ -155,6 +163,8 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
 
             op_code[start_ip] |= ARG_REGISTR;
         }
+
+        printf ("push arg = {%d}\n", val);
     }
     if ((sscanf (*text, "%s%n", reg, &temp))
         && (((op_code[start_ip] & ARG_MEM > 0) && *text < end_cmd)
@@ -162,18 +172,20 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
     {
         if (!(isalpha (**text)))
         {
-            fprintf (stderr, "ERROR: wrong register name");
+            fprintf (stderr, "ERROR: syntax error, register name must start from alpha");
 
-            return 0;
+            *err = SYNTAX_ERROR;
+            return *err;
         }
 
         op_code[start_ip] |= ARG_REGISTR;
 
-        #define DEF_REG(name, num)      \
-        if (stricmp (reg, #name) == 0)  \
-        {                               \
-            op_code[*ip] = name##_NUM;  \
-        }                               \
+        #define DEF_REG(name, num)                  \
+        if (stricmp (reg, #name) == 0)              \
+        {                                           \
+            op_code[*ip] = name##_NUM;              \
+            printf ("push argument is "#name"\n");   \
+        }                                           \
         else
 
         #include "..\regs.h"
@@ -181,13 +193,16 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
         #undef DEF_REG
         /* else */
         {
-            fprintf (stderr, "ERROR: sytax error, register with this name doesn't exist");
-            return 0;
+            fprintf (stderr, "ERROR: syntax error, register with this name doesn't exist");
+
+            *err = SYNTAX_ERROR;
+            return *err;
         }
 
         (*ip)++;
 
         *text += temp;
+        temp = 0;
 
         if (op_code[start_ip] & ARG_MEM)
         {
@@ -198,12 +213,14 @@ int assemble_push_arg (char **text, int *op_code, int *ip, Label *label, int *la
     {
         fprintf (stderr, "ERROR: syntax error, no register argument after '+'" );
 
-        return 0;
+        *err = SYNTAX_ERROR;
+        return *err;
     }
 
     if (op_code[start_ip] & ARG_MEM)
     {
         *end_cmd = ']';
+        (*text)++;
     }
 
     return 0;
@@ -224,7 +241,6 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
 
     if (temp_label_index > 0)
     {
-        printf ("goood\n");
         printf ("[%d]\n", label->value[temp_label_index - 1]);
 
         op_code[(*ip)++] = label->value[temp_label_index - 1];
@@ -242,16 +258,14 @@ void assemble_jmp_arg (char **text, int *op_code, int *ip, Label *label, int *la
     }*///  if label is called twice or more it is not an error, but prints error, printing must be only in second init
 }
 
-int assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int *err)
+int assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int *err)//1
 {
     int temp_label_index = 0;
     char *pname = strchr (cmd, ':');
-    if (pname)
-    {
-        *pname = '\0';
-    }
 
-    temp_label_index = is_label_name (label, cmd);
+    *pname = '\0';
+
+    temp_label_index = is_label_name (label, (const char*)cmd);
 
     if (!(temp_label_index))
     {
@@ -267,17 +281,9 @@ int assemble_label_arg (char *cmd, int *ip, Label *label, int *label_index, int 
     {
         label->value[--temp_label_index] = *ip;
         fprintf (stderr, "label is [%d]\n", label->value[temp_label_index]);
-
-       /* if (temp_label_index > *label_index)
-        {
-            *label_index = temp_label_index + 1;
-        }*/
     }
 
-    if (pname)
-    {
-        *pname = ':';
-    }
+    *pname = ':';
 
     return temp_label_index;
 }
